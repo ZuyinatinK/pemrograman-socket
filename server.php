@@ -1,32 +1,34 @@
 <?php
+// Mengaktifkan pelaporan kesalahan dan menetapkan batas waktu eksekusi skrip ke nol (tak terbatas).
 error_reporting(1);
 set_time_limit (0);
 
+// Mengatur alamat IP dan port untuk server
 $address = "0.0.0.0";
 $port = 5000;
 $max_clients = 5;
 
-// Creating a socket 
+// Membuat socket 
 if(!($sock = socket_create(AF_INET, SOCK_STREAM, 0)))
-{   // Error handling
+{   // Penanganan kesalahan jika socket tidak dapat dibuat
     $errorcode = socket_last_error();
     $errormsg = socket_strerror($errorcode); 
     die("Couldn't create socket: [$errorcode] $errormsg \n");
 } 
 echo "Socket created \n";
 
-// Bind the source address
+// Bind alamat sumber ke socket
 if(!socket_bind($sock, $address, $port))
-{   // Error handling
+{   // Penanganan kesalahan jika socket tidak dapat di-bind
     $errorcode = socket_last_error();
     $errormsg = socket_strerror($errorcode); 
     die("Could not bind socket : [$errorcode] $errormsg \n");
 } 
 echo "Socket bind OK \n";
 
-// Listens for a connection on a socket
+// Menunggu koneksi pada socket
 if(!socket_listen ($sock, $max_clients))
-{   // Error handling
+{  // Penanganan kesalahan jika socket tidak dapat mendengarkan
     $errorcode = socket_last_error();
     $errormsg = socket_strerror($errorcode); 
     die("Could not listen on socket : [$errorcode] $errormsg \n");
@@ -35,48 +37,48 @@ echo "Socket listen OK \n";
 
 echo "Waiting for incoming connections... \n";
 
-//array of client sockets
+// Array untuk menyimpan socket klien
 $client_socks = array();
 
-//array of sockets to read
+// Array untuk menyimpan socket yang dapat dibaca
 $read = array();
 
-//start loop to listen for incoming connections and process existing connections
+// Memulai loop untuk mendengarkan koneksi masuk dan memproses koneksi yang ada
 while (true)
-{   //prepare array of readable client sockets
+{   // Mempersiapkan array socket yang dapat dibaca
     $read = array();
 
-    //first socket is the master socket
+    // Socket pertama adalah socket utama
     $read[0] = $sock;
 
-    //now add the existing client sockets
+    // Menambahkan socket klien yang ada
     for ($i = 0; $i < $max_clients; $i++)
     {   if($client_socks[$i] != null)
         {	$read[$i+1] = $client_socks[$i];
         }
     }
 
-    //Runs the select() system call on the given arrays of sockets
+    // Memanggil fungsi select() untuk array socket yang diberikan
     if(socket_select($read, $write, $except, null) === false)
-    {	// Error handling
+    {	// Penanganan kesalahan jika select() gagal
         $errorcode = socket_last_error();
         $errormsg = socket_strerror($errorcode); 
         die("Could not listen on socket : [$errorcode] $errormsg \n");
     }
 
-    //if ready contains the master socket, then a new connection has come in
+    // Jika socket utama siap, artinya ada koneksi baru yang masuk
     if (in_array($sock, $read))
     {   for ($i = 0; $i < $max_clients; $i++)
         {   if ($client_socks[$i] == null)
-            {   //Accepts a connection on a socket
+            {   // Menerima koneksi pada socket
                 $client_socks[$i] = socket_accept($sock);
 
-                //display information about the client who is connected
+                // Menampilkan informasi tentang klien yang terhubung
                 if(socket_getpeername($client_socks[$i], $address, $port))
                 {	echo "Client $address : $port is now connected to Us. \n";
                 }
 
-                //Send Welcome message to client
+                // Mengirim pesan selamat datang ke klien
                 $message = "Welcome to php socket server version 1.0 \n";
                 $message .= "Enter a message and press enter. I shall reply back \n";
                 socket_write($client_socks[$i], $message);
@@ -85,14 +87,14 @@ while (true)
         }
     }
 
-    //check each client if they send any data
+    // Mengirim pesan selamat datang ke klien
     for ($i = 0; $i < $max_clients; $i++)
     {	if (in_array($client_socks[$i], $read))
-        {	//Reads a maximum of length bytes from a socket
+        {	// Membaca data dari socket klien
             $input = socket_read($client_socks[$i], 1024);
 
             if ($input == null)
-            {	//zero length string meaning disconnected, remove and close the socket
+            {	// Jika input kosong, berarti klien terputus, hapus dan tutup socket
                 // remove the socket
                 unset($client_socks[$i]);
                 // close the socket
@@ -106,7 +108,7 @@ while (true)
             //send response to client
             //socket_write($client_socks[$i], $output);
 
-            // send response to other client
+            // Mengirim respons ke klien lain
             foreach (array_diff_key($client_socks, array($i => 0)) as $client_sock) {
                 socket_write($client_sock, $output);
             }
