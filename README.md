@@ -1,8 +1,13 @@
 # Server-Client Communication using PHP Sockets
 
+Program ini merupakan contoh sederhana komunikasi server-klien menggunakan soket (socket) dalam bahasa pemrograman PHP. Tujuan dari program ini adalah untuk menunjukkan cara mendirikan komunikasi antara server dan beberapa klien menggunakan mekanisme socket.
+
 ## Deskripsi
 
-Program ini merupakan contoh sederhana komunikasi server-klien menggunakan soket (socket) dalam bahasa pemrograman PHP.
+Program ini terdiri dari dua kode utama:
+
+1. `server.php`: Script ini menjalankan server socket yang mendengarkan koneksi dari klien. Server akan menerima pesan dari klien dan mengirimkan respons balik. Server juga mengirimkan pesan yang diterima dari satu klien ke semua klien yang terhubung.
+2. `socket.php`: Script ini menjalankan klien socket yang menghubungkan ke server. Klien mengirimkan pesan HTTP GET ke server dan menerima respons dari server.
 
 ## Download dan Installasi
 
@@ -162,3 +167,7 @@ Setelah melakukan installasi XAMPP pada windows, langkah selanjutnya yakni melak
    Resource id #6 Said: ... Yes, I am. Why?
    I was thinking we could go hiking.
    ```
+
+## Kesimpulan
+
+Program komunikasi sederhana server-klien menggunakan socket PHP ini menunjukkan bagaimana membangun dan mengelola koneksi socket antara server dan klien. Dengan mengikuti langkah-langkah di atas, Anda dapat menjalankan program ini untuk mempelajari dasar-dasar komunikasi jaringan menggunakan socket di PHP. Program ini memberikan dasar yang kuat untuk memahami cara kerja socket dan dapat dikembangkan lebih lanjut sesuai kebutuhan.
